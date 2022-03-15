@@ -1,0 +1,24 @@
+---
+productName: "review&go"
+features:
+  - featureId: commenting
+    featureName: commenting
+    vps:
+      - &vp1
+        name: "vp1test"
+        filename: "asadasa"
+      - &vp2
+        name: "vp2finish"
+        filename: "test"
+        
+    featureEvents:
+      - name: "init"
+        vps:
+          - *vp1
+          - *vp2
+      - name: "finish"
+        vps:
+          - *vp2
+
+
+
