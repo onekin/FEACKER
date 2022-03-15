@@ -1,8 +1,8 @@
 ---
 productName: "review&go"
 features:
-  - featureId: commenting
-    featureName: commenting
+  - featureId: Commenting
+    featureName: Commenting
     vps:
       - &vp1
         name: "vp1test"
@@ -10,7 +10,6 @@ features:
       - &vp2
         name: "vp2finish"
         filename: "test"
-        
     featureEvents:
       - name: "init"
         vps:
@@ -19,6 +18,23 @@ features:
       - name: "finish"
         vps:
           - *vp2
+  - featureId: Classifying
+    featureName: Classifying
+    vps:
+      - &vp3
+        name: "vp3test"
+        filename: "asadasa"
+      - &vp4
+        name: "vp4finish"
+        filename: "test"
+        
+    featureEvents:
+      - name: "init"
+        vps:
+          - *vp3
+      - name: "finish"
+        vps:
+          - *vp4
 
 
 
