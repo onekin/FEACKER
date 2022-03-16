@@ -6,10 +6,10 @@ features:
     vps:
       - &vp1
         name: "vp1test"
-        filename: "asadasa"
+        ccm_filename: "ReadAnnotation.js"
       - &vp2
         name: "vp2finish"
-        filename: "test"
+        ccm_filename: "test"
     featureEvents:
       - name: "init"
         vps:
