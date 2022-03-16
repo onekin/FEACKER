@@ -54,17 +54,8 @@ function work() {
 	}
 
 
-	var File = java.io.File;
-	var FileReader = java.io.FileReader;
-	var BufferedReader = java.io.BufferedReader;
-
-	var inFile = new File(config_space + "/" + variant_name + ".yaml");
-	var reader = new BufferedReader(new FileReader(inFile));
-	var test_yaml = ""
-	var line = null;
-	while ((line = reader.readLine()) != null) {
-		test_yaml = test_yaml + line + "\n"
-	}
+	
+	var test_yaml = fileToString(config_space + "/" + variant_name + ".yaml")
 	var parsed_yaml = jsyaml.load(test_yaml);
 
 	processGoogleAnalyticsModel(parsed_yaml);
@@ -76,7 +67,7 @@ function work() {
 
 
 function processGoogleAnalyticsModel(analytics_model) {
-	var product_name = analytics_model.productName;
+	var product_name = variant_name;
 	var feature = null;
 	for (i in analytics_model.features) {
 		feature = analytics_model.features[i];
@@ -85,6 +76,22 @@ function processGoogleAnalyticsModel(analytics_model) {
 }
 
 
+function fileToString(file_path){
+	var File = java.io.File;
+	var FileReader = java.io.FileReader;
+	var BufferedReader = java.io.BufferedReader;
+
+	var inFile = new File(file_path);
+	var reader = new BufferedReader(new FileReader(inFile));
+	var file_string = ""
+	var line = null;
+	while ((line = reader.readLine()) != null) {
+		file_string = file_string + line + "\n"
+	}
+
+	return file_string;
+}
+
 function processFeatureAnalytics(feature, product_name) {
 
 	var feature_event = null;
@@ -92,7 +99,6 @@ function processFeatureAnalytics(feature, product_name) {
 	for (i in feature.featureEvents) {
 		feature_event = feature.featureEvents[i];
 		event_code = getEventCode(feature_event, feature.featureId, product_name);
-		console().println(event_code);
 		for (j in feature_event.vps) {
 			addEventCodeToVp(event_code, feature_event.vps[j]);
 		}
@@ -101,9 +107,53 @@ function processFeatureAnalytics(feature, product_name) {
 
 
 function addEventCodeToVp(event_code, variation_point) {
-	//console().write(variation_point.filename + "\n")
-}
+	var file_path = inpath+"/app/scripts/annotationManagement/read/ReadAnnotation2.js"
+	var anchor_array = variation_point.anchor.split("[*GA_INJECT*]");
+	var pre_anchor_array = anchor_array[0].trim().split("\n");
+	var post_anchor_array = anchor_array[1].trim().split("\n");
+	var inFile = new java.io.File(file_path);
+	var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
+	var line = null;
+	var file_array = [];
+ 	var anchor_pre_line = 0;
+  	var anchor_post_line = 0;	
+ 	var assitance_array=[];
+	while ((line = reader.readLine()) != null) {
 
+		if( anchor_pre_line<pre_anchor_array.length  &&  line.trim()==pre_anchor_array[anchor_pre_line].trim()){
+			file_array.push(line);
+			anchor_pre_line = anchor_pre_line +1;
+		}else if(anchor_pre_line > 0 && anchor_pre_line<pre_anchor_array.length){
+			anchor_pre_line = 0;
+		}
+
+		if(anchor_pre_line==pre_anchor_array.length && line.trim()==post_anchor_array[anchor_post_line].trim()){
+			assitance_array.push(line);
+		    anchor_post_line = anchor_post_line+1;
+		}else if (anchor_post_line>0){
+			file_array.concat(assitance_array);
+			file_array.push(line);
+			anchor_pre_line = 0;
+			anchor_post_line = 0;
+			assitance_array = [];
+		}
+
+		if(anchor_post_line==post_anchor_array.length && anchor_pre_line==pre_anchor_array.length){
+			file_array.push(event_code);
+			file_array.concat(assitance_array);
+			break;
+		}
+	}
+	while ((line = reader.readLine()) != null) {
+		file_array.push(line)
+	}
+	for(element in file_array){
+		console().println(element+" "+file_array[element]);
+	}
+	var out_file;
+
+	return out_file;
+}
 
 
 
@@ -124,7 +174,7 @@ function processFamilyModel(model) {
 			var fullPath = inpath + "/" + parentPath
 			fo.append(fullPath + "/" + fileName + "\n");
 			// add google analytics sentences to files
-			modifyFile(fullPath, fileName);
+			//modifyFile(fullPath, fileName);
 		}
 	}
 	fo.close();
@@ -135,12 +185,7 @@ function processFamilyModel(model) {
 
 function getEventCode(ga_event, feature_name, product_name) {
 
-	return "ga('send',{\n" +
-		"  hitType: 'event'" +
-		"  eventCategory: '" + feature_name + "',\n" +
-		"  eventAction: '" + ga_event.name + "',\n" +
-		"  eventLabel: '" + product_name + "'\n" +
-		"})";
+	return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', eventLabel: '" + product_name + "'})";
 }
 
 
