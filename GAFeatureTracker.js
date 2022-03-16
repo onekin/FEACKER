@@ -131,7 +131,7 @@ function addEventCodeToVp(event_code, variation_point) {
 			assitance_array.push(line);
 		    anchor_post_line = anchor_post_line+1;
 		}else if (anchor_post_line>0){
-			file_array.concat(assitance_array);
+			file_array = file_array.concat(assitance_array);
 			file_array.push(line);
 			anchor_pre_line = 0;
 			anchor_post_line = 0;
@@ -139,8 +139,9 @@ function addEventCodeToVp(event_code, variation_point) {
 		}
 
 		if(anchor_post_line==post_anchor_array.length && anchor_pre_line==pre_anchor_array.length){
-			file_array.push(event_code);
-			file_array.concat(assitance_array);
+			var tab_index = assitance_array[0].match(/\S|$/)['index'];
+			file_array.push(assitance_array[0].substring(0,tab_index)+event_code);
+			file_array = file_array.concat(assitance_array);
 			break;
 		}
 	}
