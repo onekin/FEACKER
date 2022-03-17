@@ -14,13 +14,62 @@ function init(vdm, models, variables, parameter) {
 	outpath = variables.get("OUTPUT");
 	variant_name = variables.get("VARIANT");
 	config_space = variables.get("CONFIGSPACE");
+
 	// if no error occurred return OK status
 	var status = new ClientTransformStatus();
 	status.setMessage(Constants().EMPTY_STRING);
 	status.setStatus(ClientTransformStatus().OK);
 
-	return status;
+	var File = java.io.File;
+	var sourceDirectory = new File(inpath)
+	var destinationDirectory = new File(outpath);
+    destinationDirectory.mkdir();
+    
+
+    forEach( sourceDirectory.list(), function(e){
+    	copyDirectoryCompatibityMode(new File(sourceDirectory, e), new File(destinationDirectory, e))
+	});
+
+    return status;
+
+
 }
+
+
+function copyDirectoryCompatibityMode(source, destination){
+	 var File = java.io.File;
+	 if (source.isDirectory()) {
+	 	destination.mkdir();
+        forEach(source.list(), function(e){
+    		copyDirectoryCompatibityMode(new File(source, e), new File(destination, e))
+		});
+    } else {
+        copyFile(source, destination);
+    }
+}
+
+function copyFile(sourceFile, destinationFile){
+	console().println(sourceFile);
+
+    var inFile = new java.io.File(sourceFile);
+	var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
+	var file_string = ""
+	var line = null;
+	var out_file = new java.io.FileWriter(destinationFile)
+	var writer = new  java.io.BufferedWriter(out_file);
+
+
+	while ((line = reader.readLine()) != null) {
+		writer.write(line);
+	}
+	console().println("I AM OUT!!!!!");
+	writer.close();
+	console().println("I AM OUT 2!!!!!");
+
+
+}
+
+
 
 
 /**
@@ -83,6 +132,8 @@ function fileToString(file_path){
 	var reader = new BufferedReader(new FileReader(inFile));
 	var file_string = ""
 	var line = null;
+
+
 	while ((line = reader.readLine()) != null) {
 		file_string = file_string + line + "\n"
 	}
@@ -109,8 +160,8 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 	var anchor_array = variation_point.anchor.split("[*GA_INJECT*]");
 	var pre_anchor_array = anchor_array[0].trim().split("\n");
 	var post_anchor_array = anchor_array[1].trim().split("\n");
-	var inFile = new java.io.File(file_path);
-	var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
+	var file = new java.io.File(file_path);
+	var reader = new java.io.BufferedReader(new java.io.FileReader(file));
 	var line = null;
 	var file_array = [];
  	var anchor_pre_line = 0;
@@ -146,12 +197,17 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 	while ((line = reader.readLine()) != null) {
 		file_array.push(line)
 	}
-	for(element in file_array){
-		console().println(element+" "+file_array[element]);
-	}
-	var out_file;
 
-	return out_file;
+	reader.close()
+
+	var out_file = new java.io.FileWriter(file);
+	for(element in file_array){
+		console().println(element);
+		out_file.write(element);
+	}
+
+	out_file.close();
+
 }
 
 
@@ -160,7 +216,6 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 
 function get_file_path(filename, relative_path,family_model){
 	if(relative_path!=undefined){
-		console().println("HELLO IM HERE")
 		return relative_path;
 
 	}else{
