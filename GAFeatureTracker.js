@@ -49,7 +49,6 @@ function copyDirectoryCompatibityMode(source, destination){
 }
 
 function copyFile(sourceFile, destinationFile){
-	console().println(sourceFile);
 
     var inFile = new java.io.File(sourceFile);
 	var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
@@ -60,11 +59,9 @@ function copyFile(sourceFile, destinationFile){
 
 
 	while ((line = reader.readLine()) != null) {
-		writer.write(line);
+		writer.write(line+"\n");
 	}
-	console().println("I AM OUT!!!!!");
 	writer.close();
-	console().println("I AM OUT 2!!!!!");
 
 
 }
@@ -156,7 +153,7 @@ function processFeatureAnalytics(feature, product_name, family_model) {
 
 
 function addEventCodeToVp(event_code, variation_point, family_model) {
-	var file_path = inpath +"/" + get_file_path(variation_point.ccm_filename, variation_point.relativepath, family_model)
+	var file_path = outpath +"/" + get_file_path(variation_point.ccm_filename, variation_point.relativepath, family_model)
 	var anchor_array = variation_point.anchor.split("[*GA_INJECT*]");
 	var pre_anchor_array = anchor_array[0].trim().split("\n");
 	var post_anchor_array = anchor_array[1].trim().split("\n");
@@ -174,9 +171,8 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 			anchor_pre_line = anchor_pre_line +1;
 		}else if(anchor_pre_line > 0 && anchor_pre_line<pre_anchor_array.length){
 			anchor_pre_line = 0;
-		}
-
-		if(anchor_pre_line==pre_anchor_array.length && line.trim()==post_anchor_array[anchor_post_line].trim()){
+			file_array.push(line);
+		}else if(anchor_pre_line==pre_anchor_array.length && line.trim()==post_anchor_array[anchor_post_line].trim()){
 			assitance_array.push(line);
 		    anchor_post_line = anchor_post_line+1;
 		}else if (anchor_post_line>0){
@@ -185,6 +181,8 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 			anchor_pre_line = 0;
 			anchor_post_line = 0;
 			assitance_array = [];
+		}else {
+			file_array.push(line);
 		}
 
 		if(anchor_post_line==post_anchor_array.length && anchor_pre_line==pre_anchor_array.length){
@@ -194,6 +192,8 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 			break;
 		}
 	}
+
+
 	while ((line = reader.readLine()) != null) {
 		file_array.push(line)
 	}
@@ -201,12 +201,13 @@ function addEventCodeToVp(event_code, variation_point, family_model) {
 	reader.close()
 
 	var out_file = new java.io.FileWriter(file);
-	for(element in file_array){
-		console().println(element);
-		out_file.write(element);
-	}
+	var writer = new  java.io.BufferedWriter(out_file);
+	forEach(file_array, function(element){
+		writer.write(element+"\n");
+	});
 
-	out_file.close();
+
+	writer.close();
 
 }
 
@@ -221,7 +222,6 @@ function get_file_path(filename, relative_path,family_model){
 	}else{
 
 	var element =family_model.getElementWithName(filename.split(".")[0]);
- 	console().println(element.getVName());
  
 	return element.getPropertyWithName("dir").getFirstConstant().getValue() + "/"+ filename;
 
