@@ -1,5 +1,5 @@
 include("js-yaml.js")
-
+include("FeaturesInVariant.js")
 
 /**
  * Transformation module instance
@@ -102,8 +102,9 @@ function work() {
 	var test_yaml = fileToString(config_space + "/" + variant_name + ".yaml")
 	var parsed_yaml = jsyaml.load(test_yaml);
 
-	processGoogleAnalyticsModel(parsed_yaml,family_model);
+	//processGoogleAnalyticsModel(parsed_yaml,family_model);
 
+	var selected_features= setSelectedFeatures();
 	return status
 }
 
