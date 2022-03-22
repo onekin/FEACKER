@@ -101,22 +101,23 @@ function work() {
 	
 	var test_yaml = fileToString(config_space + "/" + variant_name + ".yaml")
 	var parsed_yaml = jsyaml.load(test_yaml);
-
-	//processGoogleAnalyticsModel(parsed_yaml,family_model);
-
 	var selected_features= setSelectedFeatures();
+
+	processGoogleAnalyticsModel(parsed_yaml,family_model,selected_features);
+
+
 	return status
 }
 
 
 
 
-function processGoogleAnalyticsModel(analytics_model, family_model) {
+function processGoogleAnalyticsModel(analytics_model, family_model,selected_features) {
 	var product_name = variant_name;
 	var feature = null;
-	for (i in analytics_model.features) {
-		feature = analytics_model.features[i];
-		processFeatureAnalytics(feature, product_name,family_model);
+	for (i in analytics_model.analytics) {
+		analytic = analytics_model.analytics[i];
+		processFeatureAnalytics(analytic, product_name,family_model,selected_features);
 	}
 }
 
@@ -139,19 +140,44 @@ function fileToString(file_path){
 	return file_string;
 }
 
-function processFeatureAnalytics(feature, product_name, family_model) {
-
-	var feature_event = null;
-	var event_code = null;
-	for (i in feature.featureEvents) {
-		feature_event = feature.featureEvents[i];
-		event_code = getEventCode(feature_event, feature.featureId, product_name);
-		for (j in feature_event.vps) {
-			addEventCodeToVp(event_code, feature_event.vps[j],family_model);
+function processFeatureAnalytics(analytic, product_name, family_model,selected_features) {
+	if(evaluateExpresion(analytic.expression,selected_features)){
+		var event = null;
+		var event_code = null;
+		for (i in analytic.events) {
+			event = analytic.events[i];
+			event_code = getEventCode(event, analytic.expression, product_name);
+			for (j in event.vps) {
+				addEventCodeToVp(event_code, event.vps[j], family_model);
+			}
 		}
 	}
 }
 
+
+function evaluateExpresion(expression, selected_features){
+	try {
+		for (key in selected_features) {
+			eval("var " + key + "= " + selected_features[key]);
+		}
+
+		expression = replaceOperators(expression);
+		return eval(expression);
+	}catch (e){
+		console().println("An error ocurred while evaluating the following expression:"+expression);
+		console().println(e);
+		console().println("------------------------------");
+
+	}
+}
+
+
+function replaceOperators(expression){
+	expression = expression.replace(/NOT/ig,"!");
+	expression = expression.replace(/OR/ig,"||");
+	expression = expression.replace(/AND/ig, "&&");
+	return expression;
+}
 
 function addEventCodeToVp(event_code, variation_point, family_model) {
 	var file_path = outpath +"/" + get_file_path(variation_point.ccm_filename, variation_point.relativepath, family_model)

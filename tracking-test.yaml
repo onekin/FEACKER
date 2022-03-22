@@ -1,40 +1,136 @@
 ---
-productName: "review&go"
 features:
-  - featureId: Commenting
+  - featureId: Commenting and Classifying
     featureName: Commenting
     vps:
       - &vp1
-        name: "vp1test"
         ccm_filename: "ReadAnnotation.js"
+        relativepath: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+        anchor: |
+          // PVSCL:ENDCOND
+
+          // PVSCL:IFCOND(Commenting, LINE)
+          openCommentingForm (annotation) {[*GA_INJECT*]
+            CommentingForm.showCommentingForm(annotation, (err, annotation) => {
+              if (err) {
       - &vp2
-        name: "vp2finish"
-        ccm_filename: "test"
+        relativepath: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+        anchor: |
+           LanguageUtils.dispatchCustomEvent(Events.updateAnnotation, {
+             annotation: annotation
+           })[*GA_INJECT*]
+           }
+           })
+           }
+
+           // PVSCL:ENDCOND
     featureEvents:
       - name: "init"
         vps:
           - *vp1
-          - *vp2
       - name: "finish"
         vps:
           - *vp2
+  - featureId: SuggestedLiterature
+    featureName: SuggestedLiterature
+    vps:
+      - &vp1
+        ccm_filename: "CommentingForm.js"
+        relativepath: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+        anchor: |
+          const li = document.createElement('li')
+                    $(li).append(a, '<span title="' + content + '">' + content + '</span>')
+                    $('#literatureList').append(li)
+                    [*GA_INJECT*]
+                    setTimeout(function () {
+                      $('#swal-input1').val('')
+    featureEvents:
+      - name: "added"
+        vps:
+          - *vp1
+  - featureId: Canvas
+    featureName: Canvas
+    vps:
+      - &vp1
+        ccm_filename: "Canvas.js"
+        relativepath: "app/scripts/annotationManagement/read/Canvas.js"
+        anchor: |
+          class Canvas {
+            static generateCanvas () {
+              [*GA_INJECT*]
+              window.abwa.sidebar.closeSidebar()
+              let review = null
+      - &vp2
+        ccm_filename: "Canvas.js"
+        relativepath: "app/scripts/annotationManagement/read/Canvas.js"
+        anchor: |
+          document.addEventListener('keydown', function (e) {
+                  if (e.code === 'Escape' && document.querySelector('#reviewCanvas') != null) document.querySelector('#reviewCanvas').parentNode.removeChild(document.querySelector('#reviewCanvas'))
+                  document.querySelector('#abwaSidebarButton').style.display = 'block'
+                  [*GA_INJECT*]
+                })
+      - &vp3
+        ccm_filename: "Canvas.js"
+        relativepath: "app/scripts/annotationManagement/read/Canvas.js"
+        anchor: |
+          document.querySelector('#canvasCloseButton').addEventListener('click', function () {
+            document.querySelector('#reviewCanvas').parentNode.removeChild(document.querySelector('#reviewCanvas'))
+            document.querySelector('#abwaSidebarButton').style.display = 'block'
+            [*GA_INJECT*]
+          })
+    featureEvents:
+      - name: "openCanvas"
+        vps:
+          - *vp1
+      - name: "closeCanvas"
+        vps:
+          - *vp2
+          - *vp3
+  - featureId: TextSummary
+    featureName: TextSummary
+    vps:
+        - &vp1
+          name: "vp1test"
+          ccm_filename: "TextSummary.js"
+          relativepath: "app/scripts/annotationManagement/read/TextSummary.js"
+          anchor: |
+            static proccessReview () {
+              [*GA_INJECT*]
+              // PVSCL:IFCOND(EditSummary, LINE)
+              TextSummary.generateReviewEditor()
+        - &vp2
+          name: "vp2download"
+          ccm_filename: "TextSummary.js"
+          relativepath: "app/scripts/annotationManagement/read/TextSummary.js"
+          anchor: |
+                let docTitle = 'Review report'
+                if (title !== '') docTitle += ' for ' + title
+                FileSaver.saveAs(blob, docTitle + '.txt')
+                [*GA_INJECT*]
+                }
+    featureEvents:
+        - name: "initTextSummary"
+          vps:
+            - *vp1
+        - name: "downloadTextSummary"
+          vps:
+            - *vp2
   - featureId: Classifying
     featureName: Classifying
     vps:
-      - &vp3
-        name: "vp3test"
-        filename: "asadasa"
-      - &vp4
-        name: "vp4finish"
-        filename: "test"
-        
+        - &vp1
+          name: "vp1Classifying"
+          ccm_filename: "Classifying.js"
+          relativepath: "app/scripts/annotationManagement/create/CreateAnnotation.js"
+          anchor: |
+            annotationToCreate = new Annotation({
+                      target: target,
+                      tags: tags,
+                      body: body
+                    })
+                    [*GA_INJECT*]
+                    // PVSCL:IFCOND(AuthorsSearch OR ImportChecklist, LINE)
     featureEvents:
-      - name: "init"
-        vps:
-          - *vp3
-      - name: "finish"
-        vps:
-          - *vp4
-
-
-
+        - name: "classified"
+          vps:
+            - *vp1

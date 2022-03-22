@@ -15,26 +15,28 @@ var pv_module = module_instance();
  */
 function setSelectedFeatures() {
 
-	var  selected_features = {};
-	try {
-		var models = pv_module.getModels();
-		
-		//iterator over all models
-		for (var index = 0;index < models.length; index++) {
-			var model = new IPVModel(models[index]);
-			// we only want to process Feature Models
-			if (model.getType().equals(ModelConstants().CFM_TYPE)
-					|| model.getType().equals(ModelConstants().FM_TYPE)) {
-				var rootid = model.getElementsRootID();
-				setFeatures(model.getElementWithID(rootid),selected_features);
-			}
-		}
-		console().println(selected_features);
-	} catch (e) {
-		console().write(e);
-	}
-	// if no error occurred return OK status
-	return selected_features;
+    var selected_features = {};
+    try {
+        var env = pv_module.getVariantEnvironment();
+        if (env == null) {
+            status.setMessage("Transformation of VRM not supported.");
+            status.setStatus(ClientTransformStatus().ERROR);
+        } else {
+            var concreteModels = env.getFeatureModels();
+            var iter = concreteModels.iterator();
+            while (iter.hasNext()) {
+                var model = new IPVModel(iter.next());
+
+                //get root element of current model
+                var root = model.getElementWithID(model.getElementsRootID());
+                //process element lines
+                setFeatures(root, selected_features);
+            }
+        }
+    } catch (e) {
+        console().write(e);
+    }
+    return selected_features;
 }
 
 /**
@@ -42,23 +44,26 @@ function setSelectedFeatures() {
  * and do to the children.
  * @param {IPVElement} element The element to print
  */
-function setFeatures(element,selected_features) {
-	// add information to output file
-	selected_features[element.getName()]=true;
+function setFeatures(element, selected_features) {
+    // add information to output file
+    var varEl = pv_module.getVariantModel().getSelectionOfReference(element);
+    var selection = "-";//if no selection decision was made by now, we simply count them as unselected
+    if (varEl != null) {//only if selection decision was made by now
+        //get selection of current element
+        selection = varEl.getType();
+        if (selection.equals(ModelConstants().SELECTED_TYPE)) {
+            selected_features[element.getName()] = true;
+        } else {
+            selected_features[element.getName()] = false;
+        }
+    }else if(element.getName()!=null){
+        selected_features[element.getName()] = false;
+    }
 
-
-	/**
-	 * Because the description of a feature is stored in html in this model, and
-	 * we don't want to see the html tags in our outputfile, we are doing some
-	 * formating here.
-	 */
-	out.println("------------------------------------------------------"
-			+ "---------------------------------------------------\n");
-
-	// get Children of current element
-	var iter = element.getChildren().iterator();
-	while (iter.hasNext()) {
-		setFeatures(iter.next());
-	}
+    // get Children of current element
+    var iter = element.getChildren().iterator();
+    while (iter.hasNext()) {
+        setFeatures(iter.next(), selected_features);
+    }
 }
 
