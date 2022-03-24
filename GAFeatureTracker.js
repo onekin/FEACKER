@@ -13,8 +13,7 @@ function init(vdm, models, variables, parameter) {
 	inpath = variables.get("INPUT");
 	outpath = variables.get("OUTPUT");
 	variant_name = variables.get("VARIANT");
-	config_space = variables.get("CONFIGSPACE");
-
+	project_path = variables.get("PROJECT");
 	// if no error occurred return OK status
 	var status = new ClientTransformStatus();
 	status.setMessage(Constants().EMPTY_STRING);
@@ -99,7 +98,7 @@ function work() {
 
 
 	
-	var test_yaml = fileToString(config_space + "/" + variant_name + ".yaml")
+	var test_yaml = fileToString( project_path+ "/GAFF.yaml")
 	var parsed_yaml = jsyaml.load(test_yaml);
 	var selected_features= setSelectedFeatures();
 
