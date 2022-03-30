@@ -172,9 +172,9 @@ function evaluateExpresion(expression, selected_features){
 
 
 function replaceOperators(expression){
-	expression = expression.replace(/NOT/ig,"!");
-	expression = expression.replace(/OR/ig,"||");
-	expression = expression.replace(/AND/ig, "&&");
+	expression = expression.replace(/ NOT /ig," ! ");
+	expression = expression.replace(/ OR /ig," || ");
+	expression = expression.replace(/ AND /ig, " && ");
 	return expression;
 }
 
@@ -258,7 +258,7 @@ function get_file_path(filename, relative_path,family_model){
 
 function getEventCode(ga_event, feature_name, product_name) {
 
-	return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', eventLabel: '" + product_name + "'}) //AUTO-GENERATED:FTM";
+	return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', eventLabel: '" + product_name + "'}) //AUTO-GENERATED:GAFF";
 }
 
 
