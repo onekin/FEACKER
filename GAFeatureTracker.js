@@ -146,8 +146,8 @@ function processFeatureAnalytics(analytic, product_name, family_model,selected_f
 		for (i in analytic.events) {
 			event = analytic.events[i];
 			event_code = getEventCode(event, analytic.expression, product_name);
-			for (j in event.vps) {
-				addEventCodeToVp(event_code, event.vps[j], family_model);
+			for (j in event.locations) {
+				addEventCodeTolocation(event_code, event.locations[j], family_model);
 			}
 		}
 	}
@@ -178,9 +178,9 @@ function replaceOperators(expression){
 	return expression;
 }
 
-function addEventCodeToVp(event_code, variation_point, family_model) {
-	var file_path = outpath +"/" + get_file_path(variation_point.ccm_filename, variation_point.relativepath, family_model)
-	var anchor_array = variation_point.anchor.split("[*GA_INJECT*]");
+function addEventCodeTolocation(event_code, location, family_model) {
+	var file_path = outpath +"/" + get_file_path(location.ccm_filename, location.relativepath, family_model)
+	var anchor_array = location.anchor.split("[*GA_INJECT*]");
 	var pre_anchor_array = anchor_array[0].trim().split("\n");
 	var post_anchor_array = anchor_array[1].trim().split("\n");
 	var file = new java.io.File(file_path);
