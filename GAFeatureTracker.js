@@ -258,7 +258,7 @@ function get_file_path(filename, relative_path,family_model){
 
 function getEventCode(ga_event, feature_name, product_name) {
 
-	return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', eventLabel: '" + product_name + "'}) //AUTO-GENERATED:GAFF";
+	return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', dimension1: '" + product_name + "', event label: '"+product_name+"' }) //AUTO-GENERATED:GAFF";
 }
 
 
