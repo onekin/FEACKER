@@ -12,7 +12,6 @@ var feature_children = root.getChildren();
 var feedback_attributes = {};
 process_children(feature_children, feedback_attributes);
 //feedback_results =  get_results_from_GA(feedback_results);
-//print_dict(feedback_attributes)
 
 var isWindows = java.lang.System.getProperty("os.name")
     .toLowerCase().startsWith("windows");
@@ -37,6 +36,7 @@ for (var key in feedback_attributes) {
         var exitVal = process.waitFor();
         if (exitVal == 0) {
             feedback_attributes[key] = output;
+            console().println("Success GA query!");
         } else {
             console().println("Fail!");
             console().println(output);
@@ -45,15 +45,18 @@ for (var key in feedback_attributes) {
         console().println(e);
     }
 }
+
 var pathToModel = pure_variants().getPathOfContextProject() + "/scopious-feedback.xfm";
-//pure_variants().deleteModel(pathToModel);
 pure_variants().createModel(pathToModel, "scopious", ModelConstants().FM_TYPE);
 var scopiousModel = pure_variants().openModel(pathToModel);
 
+
 try {
+
     var operation = pure_variants().changeModel(scopiousModel);
-    operation.addElement(root, scopiousModel.getRoot(), "ps:feature");
-    addChildren(scopiousModel.getRoot().getChildren(), root.getChildren(), operation )
+    var newRoot = copyElement(root,scopiousModel);
+    operation.addElement(newRoot, scopiousModel.getRoot(), root.getType());
+    addChildren(root.getChildren(),newRoot, operation,feedback_attributes,scopiousModel)
     pure_variants().updateModel(operation);
     pure_variants().saveModel(scopiousModel);
 } catch (e) {
@@ -87,13 +90,50 @@ function process_feedback_attributes(attributes, feedback_attributes) {
 
 
 function print_dict(dict) {
-    console().println("hello");
     for (var key in dict) {
         console().println(dict[key] + ":" + key)
     }
 }
 
 
-function addChildren(originalChildren, scopiousChildren, operation) {
+function addChildren(originalChildren, scopiousElement, operation,feedback_attributes,model) {
+    var idx = originalChildren.iterator();
+    while (idx.hasNext()) {
+        var child_element = idx.next();
+        var newChildElement = copyElement(child_element,model);
+        setFeedbackAttributesResults(child_element,newChildElement,feedback_attributes)
+        operation.addElement(newChildElement, scopiousElement, child_element.getType())
 
+        addChildren(child_element.getChildren(), newChildElement, operation,feedback_attributes,model)
+    }
+}
+
+
+function setFeedbackAttributesResults(element, newElement, feedback_attributes) {
+    var attributes = element.getPropertyList().iterator()
+    while (attributes.hasNext()) {
+        var attribute = attributes.next();
+        if (attribute.getName().startsWith("scop_")) {
+            var newAttribute = new Property();
+            newAttribute.setName(attribute.getName());
+            newAttribute.setFixed(attribute.isFixed());
+            newAttribute.setInvisible(false);
+            newAttribute.setType(attribute.getType());
+            var constant = new Constant();
+            constant.setType(attribute.getType());
+            constant.setContent(feedback_attributes[attribute.getName()]);
+            newAttribute.addConstant(constant);
+            newElement.addProperty(newAttribute);
+        }
+
+    }
+}
+
+function copyElement(root,model) {
+    var element = new Element();
+    element.setKlass(root.getKlass());
+    element.setName(root.getName());
+    element.setType(root.getType());
+    Operations().setVName(element, root.getVName(), model.getMimeType());
+    return element;
 }
