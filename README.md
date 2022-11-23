@@ -1,7 +1,7 @@
 # Feacker: Feature usage tracker
 
 
-FEACKER is a _Javascript_ a plug-in to leverage _pure::variants_ on the search of Continuous Scoping. FEACKER injects feature-based Google Analytics hits into Software Product Lines developed using _pure::variants_. 
+FEACKER is a _Javascript_ a plug-in to leverage _pure::variants_ on the search of Feature Usage Tracking. FEACKER injects feature-based Google Analytics hits into Software Product Lines developed using _pure::variants_. 
 It sits on top of PV SDK.
 
 ## Dependencies
