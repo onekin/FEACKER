@@ -11,7 +11,6 @@ var root = pure_variants().getContextModel().getRoot();
 var feature_children = root.getChildren();
 var feedback_attributes = {};
 process_children(feature_children, feedback_attributes);
-//feedback_results =  get_results_from_GA(feedback_results);
 
 var isWindows = java.lang.System.getProperty("os.name")
     .toLowerCase().startsWith("windows");
