@@ -21,11 +21,11 @@ For each _pure::variants_ project in which you want to use FEACKER conduct the f
 2. Create a new Tranformation
 3. Add a javascript transformation and set FEACKER.js (select it from the UI menu) as the script file.
 4. Change the variant output path  to /your_path/${variant}-FEACKER
-5. Change the input variant path of pure::variants fileprocessing transformation to /your_path/${variant}-GAFF
+5. Change the input variant path of pure::variants fileprocessing transformation to /your_path/${variant}-FEACKER
 
 ### Running FEACKER
 1. At development time:
-     - Create the  FF model at the project root, and create a GA property counterpart in your GA account
+     - Create the  FEACKER.yaml model at the project root, and create a GA property counterpart in your GA account
 2. At product configuration time
     - For each variant to be tracked, run GAFF transformation
 3. At the time the variant is run
