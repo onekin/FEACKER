@@ -1,0 +1,324 @@
+goals:
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: Hypothesis
+    context: Hypothesis
+
+    questions:
+      - questionId: "Q1"
+        description: "How is Hypothesis enacted?"
+        metrics: []
+
+    hits:
+      - name: "errorInHypothesis"
+        pointCuts:
+          - fileName: "HypothesisClientInterface.js"
+            path: "app/scripts/annotationServer/hypothesis/HypothesisClientInterface.js"
+            anchor: |
+              }, (result) => {
+                if (_.has(result, 'error')) {
+                  [*GA_INJECT*]
+                  callback(result.error)
+                } else {
+                  callback(null, result)
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: SidebarNavigation or Canvas or LastAnnotation
+    context: SidebarNavigation or Canvas or LastAnnotation
+
+    questions:
+      - questionId: "Q2"
+        description: "How is SidebarNavigation or Canvas or LastAnnotation enacted?"
+        metrics: []
+
+    hits:
+      - name: "SidebarNavigationUsed"
+        pointCuts:
+          - fileName: "ReadCodebook.js"
+            path: "app/scripts/codebook/operations/read/ReadCodebook.js"
+            anchor: |
+              })
+                } else {
+                  // Else navigate to annotation
+                  [*GA_INJECT*]
+                  LanguageUtils.dispatchCustomEvent(Events.navigateToAnnotationByCode, {
+                    codeId: theme.id
+                  })
+                }
+          - fileName: "ReadCodebook.js"
+            path: "app/scripts/codebook/operations/read/ReadCodebook.js"
+            anchor: |
+              } else {
+                // Else navigate to annotation
+                [*GA_INJECT*]
+                LanguageUtils.dispatchCustomEvent(Events.navigateToAnnotationByCode, {
+                  codeId: code.id
+                })
+              }
+          - fileName: "ReadCodebook.js"
+            path: "app/scripts/codebook/operations/read/ReadCodebook.js"
+            anchor: |
+              })
+                } else {
+                  // Else navigate to annotation
+                  [*GA_INJECT*]
+                  LanguageUtils.dispatchCustomEvent(Events.navigateToAnnotationByCode, {
+                    codeId: theme.id
+                  })
+                }
+
+      - name: "CanvasUsed"
+        pointCuts:
+          - fileName: "Canvas.js"
+            path: "app/scripts/annotationManagement/read/Canvas.js"
+            anchor: |
+              class Canvas {
+                static generateCanvas () {
+                  [*GA_INJECT*]
+                  window.abwa.sidebar.closeSidebar()
+                  let review = null
+
+      - name: "LastAnnotationUsed"
+        pointCuts:
+          - fileName: "Resume.js"
+            path: "app/scripts/annotationManagement/read/Resume.js"
+            anchor: |
+              if (window.abwa.annotationManagement.annotationReader.allAnnotations.length > 0) {
+                window.abwa.annotationManagement.goToAnnotation(window.abwa.annotationManagement.annotationReader.allAnnotations.reduce(
+                  (max, a) => a.modified > max.modified ? a : max)
+                )
+                [*GA_INJECT*]
+              }
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: Canvas
+    context: Canvas
+
+    questions:
+      - questionId: "Q3"
+        description: "How is Canvas enacted?"
+        metrics: []
+
+    hits:
+      - name: "closeCanvasFromExitButton"
+        pointCuts:
+          - fileName: "Canvas.js"
+            path: "app/scripts/annotationManagement/read/Canvas.js"
+            anchor: |
+              document.querySelector('#canvasCloseButton').addEventListener('click', function () {
+                document.querySelector('#reviewCanvas').parentNode.removeChild(document.querySelector('#reviewCanvas'))
+                document.querySelector('#abwaSidebarButton').style.display = 'block'
+                [*GA_INJECT*]
+              })
+
+      - name: "closeCanvasFromESCKey"
+        pointCuts:
+          - fileName: "Canvas.js"
+            path: "app/scripts/annotationManagement/read/Canvas.js"
+            anchor: |
+              document.addEventListener('keydown', function (e) {
+                if (e.code === 'Escape' && document.querySelector('#reviewCanvas') != null) document.querySelector('#reviewCanvas').parentNode.removeChild(document.querySelector('#reviewCanvas'))
+                document.querySelector('#abwaSidebarButton').style.display = 'block'
+                [*GA_INJECT*]
+              })
+
+      - name: "closeCanvasFromClickingBackdrop"
+        pointCuts:
+          - fileName: "Canvas.js"
+            path: "app/scripts/annotationManagement/read/Canvas.js"
+            anchor: |
+              const canvasContainer = document.querySelector('#canvasContainer')
+                document.querySelector('#canvasOverlay').addEventListener('click', function () {
+                  document.querySelector('#reviewCanvas').parentNode.removeChild(document.querySelector('#reviewCanvas'))
+                  document.querySelector('#abwaSidebarButton').style.display = 'block'
+                  [*GA_INJECT*]
+                })
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: Commenting
+    context: Commenting
+
+    questions:
+      - questionId: "Q4"
+        description: "How is Commenting enacted?"
+        metrics: []
+
+    hits:
+      - name: "openCommentingFromDoubleClick"
+        pointCuts:
+          - fileName: "ReadAnnotation.js"
+            path: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+            anchor: |
+              // If current user, if has no replies commenting, otherwise replying
+              if (ReplyAnnotation.hasReplies(annotation, this.replyAnnotations)) {
+                this.openReplyingForm(annotation)
+              } else {
+                this.openCommentingForm(annotation)
+                [*GA_INJECT*]
+              }
+          - fileName: "ReadAnnotation.js"
+            path: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+            anchor: |
+              if (annotationCreator === currentUserId) {
+                this.openCommentingForm(annotation)
+                [*GA_INJECT*]
+              }
+
+      - name: "openCommentingFromContextMenu"
+        pointCuts:
+          - fileName: "ReadAnnotation.js"
+            path: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+            anchor: |
+              }/* PVSCL:ENDCOND *//* PVSCL:IFCOND(Commenting) */ else if (key === 'comment') {
+                // Open commenting form
+                [*GA_INJECT*]
+                this.openCommentingForm(annotation)
+              } /* PVSCL:ENDCOND */
+              },
+
+      - name: "CommentHasBeenMade"
+        pointCuts:
+          - fileName: "ReadAnnotation.js"
+            path: "app/scripts/annotationManagement/read/ReadAnnotation.js"
+            anchor: |
+              LanguageUtils.dispatchCustomEvent(Events.updateAnnotation, {
+                annotation: annotation
+              })[*GA_INJECT*]
+              }
+              })
+              }
+
+              // PVSCL:ENDCOND
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: SuggestedLiterature
+    context: SuggestedLiterature
+
+    questions:
+      - questionId: "Q5"
+        description: "How is SuggestedLiterature enacted?"
+        metrics: []
+
+    hits:
+      - name: "addedSuggestedLiterature"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              const li = document.createElement('li')
+                 $(li).append(a, '<span title="' + content + '">' + content + '</span>')
+                 $('#literatureList').append(li)
+                 [*GA_INJECT*]
+                 setTimeout(function () {
+                 $('#swal-input1').val('')
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: Autocomplete
+    context: Autocomplete
+
+    questions:
+      - questionId: "Q6"
+        description: "How is Autocomplete enacted?"
+        metrics: []
+
+    hits:
+      - name: "autocompleteUsed"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              document.querySelector('#comment').addEventListener('awesomplete-selectcomplete', () => {
+                console.log('Autocompleted')
+                [*GA_INJECT*]
+              })
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: Categorize
+    context: Categorize
+
+    questions:
+      - questionId: "Q7"
+        description: "How is Categorize enacted?"
+        metrics: []
+
+    hits:
+      - name: "categorizeUsed"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              let containerSelect = document.querySelector('#categorizeDropdown')
+                containerSelect.addEventListener('change', () => {
+                  console.log('Categorized')
+                  [*GA_INJECT*]
+                })
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: PreviousAssignments
+    context: PreviousAssignments
+
+    questions:
+      - questionId: "Q8"
+        description: "How is PreviousAssignments enacted?"
+        metrics: []
+
+    hits:
+      - name: "addedPreviousAssignment"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              previousAssignmentAppendElements.forEach((previousAssignmentAppendElement) => {
+                 previousAssignmentAppendElement.addEventListener('click', () => {
+                   // Append url to comment
+                   [*GA_INJECT*]
+                   const commentTextarea = document.querySelector('#comment')
+                   commentTextarea.value = commentTextarea.value + previousAssignmentAppendElement.dataset.studentUrl
+                 })
+               })
+
+  - audience: "Control Board"
+    purpose: ["Scoping", "Optimization"]
+    target: SentimentAnalysis
+    context: SentimentAnalysis
+
+    questions:
+      - questionId: "Q9"
+        description: "How is SentimentAnalysis enacted?"
+        metrics: []
+
+    hits:
+      - name: "SentimentAnalysisIgnored"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              confirmButtonText: 'Save as it is',
+                 reverseButtons: true,
+                 callback: callback,
+                 cancelCallback: () => {
+                   [*GA_INJECT*]
+                   showForm(preConfirmData)
+                 }
+               })
+
+      - name: "SentimentAnalysisSuggested"
+        pointCuts:
+          - fileName: "CommentingForm.js"
+            path: "app/scripts/annotationManagement/purposes/CommentingForm.js"
+            anchor: |
+              .then((isOffensive) => {
+                if (isOffensive) {
+                  // The comment is negative or offensive
+                  [*GA_INJECT*]
+                  Alerts.confirmAlert({
+                    text: 'The message may be ofensive. Please modify it.',
+                    showCancelButton: true,
+                    cancelButtonText: 'Modify comment',

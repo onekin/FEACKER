@@ -1,5 +1,5 @@
-include("js-yaml.js")
-include("FeaturesInVariant.js")
+include("js-yaml.js");
+include("FeaturesInVariant.js");
 
 /**
  * Transformation module instance
@@ -7,64 +7,61 @@ include("FeaturesInVariant.js")
 var pv_module = module_instance();
 
 function init(vdm, models, variables, parameter) {
-    // initialize global variables
-    gvdm = vdm;
-    //get output path
-    inpath = variables.get("INPUT");
-    outpath = variables.get("OUTPUT");
-    variant_name = variables.get("VARIANT");
-    project_path = variables.get("PROJECT");
-    // if no error occurred return OK status
-    var status = new ClientTransformStatus();
-    status.setMessage(Constants().EMPTY_STRING);
-    status.setStatus(ClientTransformStatus().OK);
+  // initialize global variables
+  gvdm = vdm;
+  //get output path
+  inpath = variables.get("INPUT");
+  outpath = variables.get("OUTPUT");
+  variant_name = variables.get("VARIANT");
+  project_path = variables.get("PROJECT");
+  // if no error occurred return OK status
+  var status = new ClientTransformStatus();
+  status.setMessage(Constants().EMPTY_STRING);
+  status.setStatus(ClientTransformStatus().OK);
 
-    var File = java.io.File;
-    var sourceDirectory = new File(inpath)
-    var destinationDirectory = new File(outpath);
-    destinationDirectory.mkdir();
+  var File = java.io.File;
+  var sourceDirectory = new File(inpath);
+  var destinationDirectory = new File(outpath);
+  destinationDirectory.mkdir();
 
+  forEach(sourceDirectory.list(), function (e) {
+    copyDirectoryCompatibityMode(
+      new File(sourceDirectory, e),
+      new File(destinationDirectory, e)
+    );
+  });
 
-    forEach(sourceDirectory.list(), function (e) {
-        copyDirectoryCompatibityMode(new File(sourceDirectory, e), new File(destinationDirectory, e))
-    });
-
-    return status;
-
-
+  return status;
 }
 
-
 function copyDirectoryCompatibityMode(source, destination) {
-    var File = java.io.File;
-    if (source.isDirectory()) {
-        destination.mkdir();
-        forEach(source.list(), function (e) {
-            copyDirectoryCompatibityMode(new File(source, e), new File(destination, e))
-        });
-    } else {
-        copyFile(source, destination);
-    }
+  var File = java.io.File;
+  if (source.isDirectory()) {
+    destination.mkdir();
+    forEach(source.list(), function (e) {
+      copyDirectoryCompatibityMode(
+        new File(source, e),
+        new File(destination, e)
+      );
+    });
+  } else {
+    copyFile(source, destination);
+  }
 }
 
 function copyFile(sourceFile, destinationFile) {
+  var inFile = new java.io.File(sourceFile);
+  var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
+  var file_string = "";
+  var line = null;
+  var out_file = new java.io.FileWriter(destinationFile);
+  var writer = new java.io.BufferedWriter(out_file);
 
-    var inFile = new java.io.File(sourceFile);
-    var reader = new java.io.BufferedReader(new java.io.FileReader(inFile));
-    var file_string = ""
-    var line = null;
-    var out_file = new java.io.FileWriter(destinationFile)
-    var writer = new java.io.BufferedWriter(out_file);
-
-
-    while ((line = reader.readLine()) != null) {
-        writer.write(line + "\n");
-    }
-    writer.close();
-
-
+  while ((line = reader.readLine()) != null) {
+    writer.write(line + "\n");
+  }
+  writer.close();
 }
-
 
 /**
  * Do the work of this JavaScript transformation module
@@ -72,185 +69,208 @@ function copyFile(sourceFile, destinationFile) {
  */
 
 function work() {
-
-    // if no error occurred return OK status
-    var status = new ClientTransformStatus();
-    status.setMessage(Constants().EMPTY_STRING);
-    status.setStatus(ClientTransformStatus().OK);
-    var family_model = null;
-    try {
-        var models = pv_module.getModels();
-        for (var index = 0; index < models.length; index++) {
-            var model = new IPVModel(models[index]);
-            // we only want to process the Family Model
-            if (model.getType().equals(ModelConstants().CCM_TYPE)) {
-                family_model = model;
-            }
-        }
-    } catch (e) {
-        // If something went wrong, catch error and return error status with
-        // specific error message.
-        status.setMessage(e.toString());
-        status.setStatus(ClientTransformStatus().ERROR);
+  // if no error occurred return OK status
+  var status = new ClientTransformStatus();
+  status.setMessage(Constants().EMPTY_STRING);
+  status.setStatus(ClientTransformStatus().OK);
+  var family_model = null;
+  try {
+    var models = pv_module.getModels();
+    for (var index = 0; index < models.length; index++) {
+      var model = new IPVModel(models[index]);
+      // we only want to process the Family Model
+      if (model.getType().equals(ModelConstants().CCM_TYPE)) {
+        family_model = model;
+      }
     }
+  } catch (e) {
+    // If something went wrong, catch error and return error status with
+    // specific error message.
+    status.setMessage(e.toString());
+    status.setStatus(ClientTransformStatus().ERROR);
+  }
 
+  var test_yaml = fileToString(project_path + "/FEACKER.yaml");
+  var parsed_yaml = jsyaml.load(test_yaml);
+  var selected_features = setSelectedFeatures();
 
-    var test_yaml = fileToString(project_path + "/FEACKER.yaml")
-    var parsed_yaml = jsyaml.load(test_yaml);
-    var selected_features = setSelectedFeatures();
+  processFeedbackModel(parsed_yaml, family_model, selected_features);
 
-    processFeedbackModel(parsed_yaml, family_model, selected_features);
-
-
-    return status
+  return status;
 }
-
 
 function processFeedbackModel(feedback_model, family_model, selected_features) {
-    var product_name = variant_name;
-    var feature = null;
-    for (i in feedback_model.goals) {
-        goal = feedback_model.goals[i];
-        processFeedbackGoals(goal, product_name, family_model, selected_features);
-    }
-}
+  console().println("processing model");
 
+  var product_name = variant_name;
+  var feature = null;
+  for (i in feedback_model.goals) {
+    goal = feedback_model.goals[i];
+    processFeedbackGoals(goal, product_name, family_model, selected_features);
+  }
+}
 
 function fileToString(file_path) {
-    var File = java.io.File;
-    var FileReader = java.io.FileReader;
-    var BufferedReader = java.io.BufferedReader;
+  var File = java.io.File;
+  var FileReader = java.io.FileReader;
+  var BufferedReader = java.io.BufferedReader;
 
-    var inFile = new File(file_path);
-    var reader = new BufferedReader(new FileReader(inFile));
-    var file_string = ""
-    var line = null;
+  var inFile = new File(file_path);
+  var reader = new BufferedReader(new FileReader(inFile));
+  var file_string = "";
+  var line = null;
 
+  while ((line = reader.readLine()) != null) {
+    file_string = file_string + line + "\n";
+  }
 
-    while ((line = reader.readLine()) != null) {
-        file_string = file_string + line + "\n"
-    }
-
-    return file_string;
+  return file_string;
 }
 
-function processFeedbackGoals(goal, product_name, family_model, selected_features) {
-    if (evaluateExpresion(goal.target, selected_features) && evaluateExpresion(goal.context, selected_features)) {
-        var event = null;
-        var event_code = null;
-        forEach(goal.questions, function (question) {
-            forEach(question.metrics, function (metric) {
-                console().println("processing metrics");
-                event_code = getMetricCode(metric, goal.target, product_name);
-                for (j in metric.pointCuts) {
-                    console().println("processing pointcuts");
-                    addEventCodeTolocation(event_code, metric.pointCuts[j], family_model);
-                }
-            })
-        })
-    }
-}
+function processFeedbackGoals(
+  goal,
+  product_name,
+  family_model,
+  selected_features
+) {
+  console().println("processing goals");
 
+  if (
+    evaluateExpresion(goal.target, selected_features) &&
+    evaluateExpresion(goal.context, selected_features)
+  ) {
+    var event = null;
+    var event_code = null;
+    forEach(goal.hits, function (hit) {
+      console().println("processing hits");
+      event_code = getHitCode(hit, goal.target, product_name);
+      for (j in hit.pointCuts) {
+        console().println("processing pointcuts");
+        addEventCodeTolocation(event_code, hit.pointCuts[j], family_model);
+      }
+    });
+  }
+}
 
 function evaluateExpresion(expression, selected_features) {
-    try {
-        for (key in selected_features) {
-            eval("var " + key + "= " + selected_features[key]);
-        }
-
-        expression = replaceOperators(expression);
-        return eval(expression);
-    } catch (e) {
-        console().println("An error ocurred while evaluating the following expression:" + expression);
-        console().println(e);
-        console().println("------------------------------");
-
+  try {
+    console().println(selected_features["Hypothesis"]);
+    for (key in selected_features) {
+      eval("var " + key + "= " + selected_features[key]);
     }
+
+    expression = replaceOperators(expression);
+    return eval(expression);
+  } catch (e) {
+    console().println(
+      "An error ocurred while evaluating the following expression:" + expression
+    );
+    console().println(e);
+    console().println("------------------------------");
+  }
 }
 
-
 function replaceOperators(expression) {
-    expression = expression.replace(/ NOT /ig, " ! ");
-    expression = expression.replace(/ OR /ig, " || ");
-    expression = expression.replace(/ AND /ig, " && ");
-    return expression;
+  expression = expression.replace(/ NOT /gi, " ! ");
+  expression = expression.replace(/ OR /gi, " || ");
+  expression = expression.replace(/ AND /gi, " && ");
+  return expression;
 }
 
 function addEventCodeTolocation(event_code, pointcut, family_model) {
-    var file_path = outpath + "/" + get_file_path(pointcut.fileName, pointcut.path, family_model)
-    var anchor_array = pointcut.anchor.split("[*GA_INJECT*]");
-    var pre_anchor_array = anchor_array[0].trim().split("\n");
-    var post_anchor_array = anchor_array[1].trim().split("\n");
-    var file = new java.io.File(file_path);
-    var reader = new java.io.BufferedReader(new java.io.FileReader(file));
-    var line = null;
-    var file_array = [];
-    var anchor_pre_line = 0;
-    var anchor_post_line = 0;
-    var assitance_array = [];
-    while ((line = reader.readLine()) != null) {
-
-        if (anchor_pre_line < pre_anchor_array.length && line.trim() == pre_anchor_array[anchor_pre_line].trim()) {
-            file_array.push(line);
-            anchor_pre_line = anchor_pre_line + 1;
-        } else if (anchor_pre_line > 0 && anchor_pre_line < pre_anchor_array.length) {
-            anchor_pre_line = 0;
-            file_array.push(line);
-        } else if (anchor_pre_line == pre_anchor_array.length && line.trim() == post_anchor_array[anchor_post_line].trim()) {
-            assitance_array.push(line);
-            anchor_post_line = anchor_post_line + 1;
-        } else if (anchor_post_line > 0) {
-            file_array = file_array.concat(assitance_array);
-            file_array.push(line);
-            anchor_pre_line = 0;
-            anchor_post_line = 0;
-            assitance_array = [];
-        } else {
-            file_array.push(line);
-        }
-
-        if (anchor_post_line == post_anchor_array.length && anchor_pre_line == pre_anchor_array.length) {
-            var tab_index = assitance_array[0].match(/\S|$/)['index'];
-            file_array.push(assitance_array[0].substring(0, tab_index) + event_code);
-            file_array = file_array.concat(assitance_array);
-            break;
-        }
+  var file_path =
+    outpath +
+    "/" +
+    get_file_path(pointcut.fileName, pointcut.path, family_model);
+  var anchor_array = pointcut.anchor.split("[*GA_INJECT*]");
+  var pre_anchor_array = anchor_array[0].trim().split("\n");
+  var post_anchor_array = anchor_array[1].trim().split("\n");
+  var file = new java.io.File(file_path);
+  var reader = new java.io.BufferedReader(new java.io.FileReader(file));
+  var line = null;
+  var file_array = [];
+  var anchor_pre_line = 0;
+  var anchor_post_line = 0;
+  var assitance_array = [];
+  while ((line = reader.readLine()) != null) {
+    if (
+      anchor_pre_line < pre_anchor_array.length &&
+      line.trim() == pre_anchor_array[anchor_pre_line].trim()
+    ) {
+      file_array.push(line);
+      anchor_pre_line = anchor_pre_line + 1;
+    } else if (
+      anchor_pre_line > 0 &&
+      anchor_pre_line < pre_anchor_array.length
+    ) {
+      anchor_pre_line = 0;
+      file_array.push(line);
+    } else if (
+      anchor_pre_line == pre_anchor_array.length &&
+      line.trim() == post_anchor_array[anchor_post_line].trim()
+    ) {
+      assitance_array.push(line);
+      anchor_post_line = anchor_post_line + 1;
+    } else if (anchor_post_line > 0) {
+      file_array = file_array.concat(assitance_array);
+      file_array.push(line);
+      anchor_pre_line = 0;
+      anchor_post_line = 0;
+      assitance_array = [];
+    } else {
+      file_array.push(line);
     }
 
-
-    while ((line = reader.readLine()) != null) {
-        file_array.push(line)
+    if (
+      anchor_post_line == post_anchor_array.length &&
+      anchor_pre_line == pre_anchor_array.length
+    ) {
+      var tab_index = assitance_array[0].match(/\S|$/)["index"];
+      file_array.push(assitance_array[0].substring(0, tab_index) + event_code);
+      file_array = file_array.concat(assitance_array);
+      break;
     }
+  }
 
-    reader.close()
+  while ((line = reader.readLine()) != null) {
+    file_array.push(line);
+  }
 
-    var out_file = new java.io.FileWriter(file);
-    var writer = new java.io.BufferedWriter(out_file);
-    forEach(file_array, function (element) {
-        writer.write(element + "\n");
-    });
+  reader.close();
 
+  var out_file = new java.io.FileWriter(file);
+  var writer = new java.io.BufferedWriter(out_file);
+  forEach(file_array, function (element) {
+    writer.write(element + "\n");
+  });
 
-    writer.close();
-
+  writer.close();
 }
-
 
 function get_file_path(filename, path, family_model) {
-    if (path != undefined) {
-        return path+"/"+filename;
+  if (path != undefined) {
+    return path;
+  } else {
+    var element = family_model.getElementWithName(filename.split(".")[0]);
 
-    } else {
-
-        var element = family_model.getElementWithName(filename.split(".")[0]);
-
-        return element.getPropertyWithName("dir").getFirstConstant().getValue() + "/" + filename;
-
-    }
+    return (
+      element.getPropertyWithName("dir").getFirstConstant().getValue() +
+      "/" +
+      filename
+    );
+  }
 }
 
-
-function getMetricCode(ga_event, feature_name, product_name) {
-
-    return "ga('send',{ hitType: 'event', eventCategory: '" + feature_name + "', eventAction: '" + ga_event.name + "', dimension1: '" + product_name + "', eventLabel: '" + product_name + "' }) //AUTO-GENERATED:GAFF";
+function getHitCode(ga_event, feature_name, product_name) {
+  return (
+    "ga('send',{ hitType: 'event', eventCategory: '" +
+    feature_name +
+    "', eventAction: '" +
+    ga_event.name +
+    "', dimension1: '" +
+    product_name +
+    "', eventLabel: '" +
+    product_name +
+    "' }) //AUTO-GENERATED:FEACKER"
+  );
 }
