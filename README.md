@@ -2,7 +2,7 @@
 
 
 FEACKER is a _Javascript_ a plug-in to leverage _pure::variants_ on the search of Feature Usage Tracking. FEACKER injects feature-based Google Analytics hits into Software Product Lines developed using _pure::variants_. 
-It sits on top of PV SDK.
+It sits on top of pure:variants SDK.
 
 ## Dependencies
 A _pure::variants_ installation is needed to work with FEACKER. Refer to: [pure::variants download page](https://www.pure-systems.com/support/purevariants-download)
