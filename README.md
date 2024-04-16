@@ -27,10 +27,14 @@ For each _pure::variants_ project in which you want to use FEACKER conduct the f
 
 ### Running FEACKER
 1. At development time:
-     - Create the  FEACKER.yaml model at the project root, and create a GA property counterpart in your GA account
+     - Create the  FEACKER.yaml model at the project root. Here you can find an ([example of a defined yaml model](https://github.com/onekin/FEACKER/blob/main/examples/wacline-feedback-specification-example.yaml))
+     - Create a GA property counterpart in your GA account. To this aim, you have to login in your account and access the administration panel. Then you will find a "+ Create Property" option:
+  ![Captura](https://github.com/onekin/FEACKER/assets/31988855/146120e4-79db-4b23-abcd-ff1b4ed39e95)
+
+     
 2. At product configuration time
-    - For each variant to be tracked, run GAFF transformation
-3. At the time the variant is run
+    - For each variant to be tracked, run the FEACKER transformation previously configured.
+3. At the time the product variant is used
     - The log counterpart starts being populated by event triggered throughout
 4. At analysis time
     - Access Google Analytics, and display the log counterpart using appropriate dashboards
