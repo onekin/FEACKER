@@ -9,6 +9,8 @@ A _pure::variants_ installation is needed to work with FEACKER. Refer to: [pure:
 
 A Google Analytics account with a Universal Property created.
 
+For developers, your system need Node16.13.0
+
 ## Instalation and Usage
 ### Project downloading and setup
 1. Download the last release from [releases](/releases)
