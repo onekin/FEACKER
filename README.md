@@ -22,7 +22,7 @@ For each _pure::variants_ project in which you want to use FEACKER conduct the f
 1. Open the transformation dialog and create a new transformation
 ![0](https://github.com/onekin/FEACKER/assets/31988855/d9bf8db9-b823-43a0-8312-3b937086b6d4)
 
-2. Add a javascript transformation and set FEACKER.js (select it from the UI menu) as the script file.
+2. Add a javascript transformation and set FEACKER.js (select it from the UI menu) as the script file. Before doing that, you have to include the FEACKER.js and FeaturesInVariant.js files in your project root inside a folder named "script".
 ![1](https://github.com/onekin/FEACKER/assets/31988855/a785af91-53b5-4310-a0fd-18e117e1be19)
 ![3](https://github.com/onekin/FEACKER/assets/31988855/16d43ccb-655d-449e-bc49-8618e8750ea2)
 
