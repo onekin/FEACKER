@@ -15,15 +15,25 @@ For developers, your system need Node16.13.0
 ### Project downloading and setup
 1. Download the last release from [releases](/releases)
 2. Store it in a permanent folder.
-3. Download GA script and add it to you project following GA guides ([GA doc](https://developers.google.com/analytics/devguides/collection/analyticsjs))
+3. Download GA script and add it to your project source code following GA guides ([GA doc](https://developers.google.com/analytics/devguides/collection/analyticsjs))
 
 ### Configuring FEACKER in _pure::variants_
 For each _pure::variants_ project in which you want to use FEACKER conduct the following steps: 
-1. Open the transformation dialog
-2. Create a new Tranformation
-3. Add a javascript transformation and set FEACKER.js (select it from the UI menu) as the script file.
-4. Change the variant output path  to /your_path/${variant}-FEACKER
-5. Change the input variant path of pure::variants fileprocessing transformation to /your_path/${variant}-FEACKER
+1. Open the transformation dialog and create a new transformation
+![0](https://github.com/onekin/FEACKER/assets/31988855/d9bf8db9-b823-43a0-8312-3b937086b6d4)
+
+2. Add a javascript transformation and set FEACKER.js (select it from the UI menu) as the script file.
+![1](https://github.com/onekin/FEACKER/assets/31988855/a785af91-53b5-4310-a0fd-18e117e1be19)
+![3](https://github.com/onekin/FEACKER/assets/31988855/16d43ccb-655d-449e-bc49-8618e8750ea2)
+
+3. In a new transformation add the created transformation and also add the pure:variants File processing transformation using the Reuse transformation option.
+![5](https://github.com/onekin/FEACKER/assets/31988855/4f55c9b1-a4a9-497c-add6-b6224faef8db)
+
+6. Change the variant output of the Feacker script path  to /your_path/${variant}-FEACKER
+![8](https://github.com/onekin/FEACKER/assets/31988855/7cfa57ec-e51e-4934-91b1-3faf4524a902)
+
+8. Change the input variant path of pure::variants fileProcessing transformation to /your_path/${variant}-FEACKER
+![6](https://github.com/onekin/FEACKER/assets/31988855/8eb8dfd8-0cb9-4d01-8d0e-965c83bc57bd)
 
 ### Running FEACKER
 1. At development time:
