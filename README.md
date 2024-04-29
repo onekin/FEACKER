@@ -50,5 +50,5 @@ For each _pure::variants_ project in which you want to use FEACKER conduct the f
     - Access Google Analytics, and display the log counterpart using appropriate dashboards
 
 ## Running example
-If you want to test FEACKER in an already configured project download XXX-Project (anonymized for SPLC paper)  from:
-https://anonymous.4open.science/r/SPLC22-CD/README.md
+If you want to test FEACKER in an already configured project you can download it from:
+[https://github.com/onekin/WACline/tree/featureTracking/WACline](https://github.com/onekin/WACline/tree/featureTracking/WACline)
